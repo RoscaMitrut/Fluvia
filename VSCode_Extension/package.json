@@ -1,0 +1,115 @@
+{
+	"name": "fluvia",
+	"displayName": "Fluvia",
+	"description": "",
+	"version": "0.1.0",
+	"engines": {
+		"vscode": "^1.103.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"extensionDependencies": [
+		"vscode.git"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "fluvia",
+					"title": "Fluvia",
+					"icon": "media/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"fluvia": [
+				{
+					"id": "fluvia.findings",
+					"name": "Findings",
+					"icon": "media/icon.svg"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "fluvia.refresh",
+				"title": "Refresh Review",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "fluvia.selectPR",
+				"title": "Select Pull Request",
+				"icon": "$(git-pull-request)"
+			},
+			{
+				"command": "fluvia.sendToChat",
+				"title": "Send prompt to Copilot Chat",
+				"icon": "$(comment-discussion)"
+			},
+			{
+				"command": "fluvia.openFile",
+				"title": "Open File",
+				"icon": "$(go-to-file)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "fluvia.selectPR",
+					"when": "view == fluvia.findings",
+					"group": "navigation"
+				},
+				{
+					"command": "fluvia.refresh",
+					"when": "view == fluvia.findings",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "fluvia.openFile",
+					"when": "view == fluvia.findings && viewItem == file",
+					"group": "inline"
+				},
+				{
+					"command": "fluvia.sendToChat",
+					"when": "view == fluvia.findings && viewItem == finding",
+					"group": "inline"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Fluvia",
+			"properties": {
+				"fluvia.botCommentMarker": {
+					"type": "string",
+					"default": "Fluvia Code Review",
+					"description": "The marker string used to identify bot review comments."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src",
+		"test": "vscode-test"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^22.19.19",
+		"@types/vscode": "^1.120.0",
+		"@vscode/test-cli": "^0.0.12",
+		"@vscode/test-electron": "^2.5.2",
+		"eslint": "^9.39.3",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.56.1"
+	}
+}
