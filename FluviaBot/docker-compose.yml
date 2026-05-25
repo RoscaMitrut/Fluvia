@@ -1,0 +1,95 @@
+services:
+  smee:
+    image: node:20-alpine
+    command: >
+      sh -c "npm install -g smee-client &&
+             smee -u ${SMEE_URL} -t http://fluviabot:${PORT:-3000}/api/github/webhooks"
+    depends_on:
+      - fluviabot
+    restart: unless-stopped
+    profiles: ["smee"]
+
+  fluviabot:
+    build: ./FluviaBot
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./secrets/fluviabot.private-key.pem:/run/secrets/github-key.pem:ro
+    environment:
+      - GitHub__PrivateKeyPath=/run/secrets/github-key.pem
+      
+  langgraph-review-service:
+    build: ../Langgraph_Review_Service
+    ports:
+      - "${LANGGRAPH_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - SLOT1_PROVIDER=${SLOT1_PROVIDER:-google}
+      - SLOT2_PROVIDER=${SLOT2_PROVIDER:-huggingface}
+      - SLOT3_PROVIDER=${SLOT3_PROVIDER:-ollama}
+      - SLOT1_MODEL=${SLOT1_MODEL:-gemini-3.5-flash}
+      - SLOT2_MODEL=${SLOT2_MODEL:-Qwen/Qwen2.5-Coder-32B-Instruct}
+      - SLOT3_MODEL=${SLOT3_MODEL:-qwen2.5-coder:7b}
+      - HUGGINGFACE_API_KEY=${HuggingFace__ApiKey:-}
+      - HUGGINGFACE_BASE_URL=${HUGGINGFACE_BASE_URL:-https://router.huggingface.co}
+      - GOOGLE_API_KEY=${Google__ApiKey:-}
+      - OLLAMA_BASE_URL=http://ollama-server:${OLLAMA_PORT:-11434}
+    volumes:
+      - ../Langgraph_Review_Service:/app
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]  
+    restart: unless-stopped
+    profiles: ["langgraph-review-service"]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:${OLLAMA_PORT:-11434}"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    profiles: ["ollama"]
+    networks:
+      default:
+        aliases:
+          - ollama-server
+
+  ollama-gpu:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:${OLLAMA_PORT:-11434}"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    profiles: ["ollama-gpu"]
+    networks:
+      default:
+        aliases:
+          - ollama-server
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: >
+      sh -c "until ollama list; do sleep 2; done &&
+        ollama pull ${OLLAMA_MODEL:-qwen2.5-coder:7b}"
+    environment:
+      - OLLAMA_HOST=http://ollama-server:${OLLAMA_PORT:-11434}
+    restart: "no"
+    profiles: ["ollama","ollama-gpu"]
+
+
+
+volumes:
+  ollama_data:

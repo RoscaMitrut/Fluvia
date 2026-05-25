@@ -1,0 +1,62 @@
+# Which services to run:   ollama/ollama-gpu
+#			   smee
+#			   langgraph-review-service
+
+COMPOSE_PROFILES = smee,langgraph-review-service,ollama-gpu
+
+# Service config
+PORT=3000
+
+# GitHub
+GitHub__AppId=
+GitHub__WebhookSecret=
+
+#smee
+SMEE_URL=
+
+
+
+
+# ReviewProvider: Anthropic/OpenAI/Ollama/LangGraph/HuggingFace/Google
+ReviewProvider=
+
+# ReviewProvider: Google
+ReviewProvider=
+
+
+
+# LangGraph
+LANGGRAPH_BASE_URL=http://langgraph-review-service
+LANGGRAPH_PORT=8000
+# ollama | huggingface | google
+SLOT1_PROVIDER=google
+SLOT2_PROVIDER=huggingface
+SLOT3_PROVIDER=ollama
+SLOT1_MODEL=gemini-3.5-flash
+SLOT2_MODEL=Qwen/Qwen2.5-Coder-32B-Instruct
+SLOT3_MODEL=qwen2.5-coder:7b
+
+# OpenAI
+OPENAI_BASE_URL=https://api.openai.com
+OpenAI__ApiKey=
+OPENAI_MODEL=
+
+# Anthropic
+ANTHROPIC_BASE_URL=https://api.anthropic.com
+Anthropic__ApiKey=
+ANTHROPIC_MODEL=
+
+# Ollama
+OLLAMA_BASE_URL=http://ollama-server
+OLLAMA_PORT=11434
+OLLAMA_MODEL=qwen2.5-coder:7b
+
+# HuggingFace
+HUGGINGFACE_BASE_URL=https://router.huggingface.co
+HuggingFace__ApiKey=
+HUGGINGFACE_MODEL=Qwen/Qwen2.5-Coder-32B-Instruct
+HUGGINGFACE_PROVIDER=auto
+
+# Google
+Google__ApiKey=
+Google__Model=gemini-3.5-flash
