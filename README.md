@@ -1,5 +1,7 @@
 # Fluvia — Architecture & Documentation
 
+Presentation video: https://youtu.be/3-qA7fnCmm0
+
 An AI-powered GitHub pull request review system. A GitHub App receives PR webhooks, runs the changed files through one or more LLMs, posts a structured review back as a PR comment, and surfaces those findings inside VS Code.
 
 ---
